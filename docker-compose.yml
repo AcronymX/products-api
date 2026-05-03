@@ -1,0 +1,29 @@
+networks:
+  microservices-network:
+    driver: bridge
+
+services:
+  app:
+    build: .
+    container_name: products-api
+    environment:
+      SPRING_PROFILES_ACTIVE: dev,docker
+    ports:
+      - "8080:8080"
+    networks:
+      - microservices-network
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8
+    container_name: products-mysql
+    environment:
+      MYSQL_DATABASE: products_db
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: dev
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    networks:
+      - microservices-network

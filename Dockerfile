@@ -3,27 +3,27 @@ FROM maven:3.9-eclipse-temurin-21-alpine AS build
 
 WORKDIR /app
 
-# Kopiera pom.xml först (cache optimization)
+# Copy pom.xml first (cache optimization)
 COPY pom.xml .
 RUN mvn dependency:go-offline || true
 
-# Kopiera source code och bygg
+# Copy source code and build
 COPY src src
-RUN mvn clean package
+RUN mvn clean package -Dspring.profiles.active=build
 
 # Production stage
 FROM eclipse-temurin:21-jre-alpine
 
-# Säkerhet: kör som non-root user
+# Security: Run as non-root user
 RUN addgroup -g 1001 spring && \
   adduser -u 1001 -G spring -s /bin/sh -D spring
 
 WORKDIR /app
 
-# Kopiera jar från build stage
+# Copy jar from build stage
 COPY --from=build --chown=spring:spring /app/target/products-api-0.0.1-SNAPSHOT.jar app.jar
 
-# Byt till non-root user
+# Switch to non-root user
 USER spring:spring
 
 EXPOSE 8080
