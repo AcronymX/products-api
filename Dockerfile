@@ -1,5 +1,7 @@
 # Build stage
-FROM maven:3.9-eclipse-temurin-21-alpine AS build
+ARG REGISTRY=""
+
+FROM ${REGISTRY}maven:3.9-eclipse-temurin-21-alpine AS build
 
 WORKDIR /app
 
@@ -12,7 +14,7 @@ COPY src src
 RUN mvn clean package -Dspring.profiles.active=build
 
 # Production stage
-FROM eclipse-temurin:21-jre-alpine
+FROM ${REGISTRY}eclipse-temurin:21-jre-alpine
 
 # Security: Run as non-root user
 RUN addgroup -g 1001 spring && \
@@ -29,7 +31,7 @@ USER spring:spring
 EXPOSE 8080
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
+HEALTHCHECK --interval=30s --timeout=3s --start-period=300s \
   CMD wget --no-verbose --tries=1 --spider http://localhost:8080/products/health || exit 1
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
