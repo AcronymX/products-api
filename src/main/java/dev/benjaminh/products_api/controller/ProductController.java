@@ -29,7 +29,7 @@ public class ProductController {
     public Product save(@RequestBody Product product) {
         return repo.save(product);
     }
-
+// Tom kommentar!
     @GetMapping("/products")
     public List<Product> getAll() {
         return repo.findAll();
